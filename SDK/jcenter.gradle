@@ -8,76 +8,8 @@
 //    }
 //}
 
-apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
-
-group = 'com.qq.e'
-version = '1.0.3'
-
-task javadocJar(type: Jar) {
-    classifier = 'javadoc'
-    from project.files("SDK.jar")
-}
-
-task sourcesJar(type: Jar) {
-    classifier = 'sources'
-    from project.files("SDK.jar")
-}
-
-task classesJar(type: Jar) {
-    from project.files("SDK.jar")
-}
-
-artifacts {
-    archives javadocJar
-    archives sourcesJar
-    archives classesJar
-}
-
-ext {
-    siteUrl = 'https://github.com/chaotao89/GDTUnionSDK'
-    gitUrl = 'https://github.com/chaotao89/GDTUnionSDK.git'
-    currentVersion = '1.0.3'
-    groupId = 'com.qq.e'
-    artifactId = 'GDTUnionSDK'
-    desc = 'GDTUnionSDK'
-}
-
-install {
-    repositories.mavenInstaller {
-        pom {
-            project {
-                name artifactId
-                description desc
-                url siteUrl
-
-                packaging 'jar'
-                groupId groupId
-                artifactId artifactId
-                version currentVersion
-
-                licenses {
-                    license {
-                        name 'The Apache Software License, Version 2.0'
-                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    }
-                }
-                developers {
-                    developer {
-                        id 'chaotao89'
-                        name 'gdt'
-                        email 'chaotao@tencent.com'
-                    }
-                }
-                scm {
-                    connection gitUrl
-                    developerConnection gitUrl
-                    url siteUrl
-                }
-            }
-        }
-    }
-}
+apply plugin: 'maven-publish'
 
 Properties properties = new Properties()
 properties.load(project.rootProject.file('local.properties').newDataInputStream())
@@ -85,14 +17,66 @@ properties.load(project.rootProject.file('local.properties').newDataInputStream(
 bintray {
     user = properties.getProperty("bintray.user")
     key = properties.getProperty("bintray.apikey")
-    configurations = ['archives']
     pkg {
         repo = "maven"
-        name = artifactId
-        websiteUrl = siteUrl
-        vcsUrl = gitUrl
+        name = 'GDTUnionSDK'
+        userOrg = 'chaotao'
         licenses = ["Apache-2.0"]
-        publish = true
-        publicDownloadNumbers = true
+        vcsUrl = 'https://github.com/chaotao89/GDTUnionSDK.git'
+//        websiteUrl = siteUrl
+//        publish = true
+//        publicDownloadNumbers = true
+        version {
+            name = '1.0.0'
+//            desc = 'Version description'
+//            released  = new Date()
+//            vcsTag = '1.0.0'
+//            attributes = ['gradle-plugin': 'com.use.less:com.use.less.gradle:gradle-useless-plugin']
+        }
+    }
+    publications = ['MyPublication']
+}
+
+def pomConfig = {
+    licenses {
+        license {
+            name "The Apache Software License, Version 2.0"
+            url "http://www.apache.org/licenses/LICENSE-2.0.txt"
+            distribution "repo"
+        }
+    }
+    developers {
+        developer {
+            id "chaotao89"
+            name "chaotao"
+            email "chaotao@tencent.com"
+        }
+    }
+
+    scm {
+        url 'https://github.com/chaotao89/GDTUnionSDK'
+    }
+}
+
+task sourceJar(type: Jar) {
+    from project.zipTree("SDK.jar")
+    classifier "sources"
+}
+
+publishing {
+    publications {
+        MyPublication(MavenPublication) {
+            artifacts = ["SDK.jar", sourceJar]
+            groupId 'com.qq.e'
+            artifactId 'GDTUnionSDK'
+            version '1.0.0'
+            pom.withXml {
+                def root = asNode()
+                root.appendNode('description', 'GDTUnionSDK')
+                root.appendNode('name', 'GDTUnionSDK')
+                root.appendNode('url', 'https://github.com/chaotao89/GDTUnionSDK')
+                root.children().last() + pomConfig
+            }
+        }
     }
 }
