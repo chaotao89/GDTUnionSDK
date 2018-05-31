@@ -1,0 +1,98 @@
+//buildscript {
+//    repositories {
+//        jcenter()
+//    }
+//    dependencies {
+//        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
+//        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
+//    }
+//}
+
+apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'com.jfrog.bintray'
+
+group = 'com.qq.e'
+version = '1.0.3'
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from project.files("SDK.jar")
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from project.files("SDK.jar")
+}
+
+task classesJar(type: Jar) {
+    from project.files("SDK.jar")
+}
+
+artifacts {
+    archives javadocJar
+    archives sourcesJar
+    archives classesJar
+}
+
+ext {
+    siteUrl = 'https://github.com/chaotao89/GDTUnionSDK'
+    gitUrl = 'https://github.com/chaotao89/GDTUnionSDK.git'
+    currentVersion = '1.0.3'
+    groupId = 'com.qq.e'
+    artifactId = 'GDTUnionSDK'
+    desc = 'GDTUnionSDK'
+}
+
+install {
+    repositories.mavenInstaller {
+        pom {
+            project {
+                name artifactId
+                description desc
+                url siteUrl
+
+                packaging 'jar'
+                groupId groupId
+                artifactId artifactId
+                version currentVersion
+
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id 'chaotao89'
+                        name 'gdt'
+                        email 'chaotao@tencent.com'
+                    }
+                }
+                scm {
+                    connection gitUrl
+                    developerConnection gitUrl
+                    url siteUrl
+                }
+            }
+        }
+    }
+}
+
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
+bintray {
+    user = properties.getProperty("bintray.user")
+    key = properties.getProperty("bintray.apikey")
+    configurations = ['archives']
+    pkg {
+        repo = "maven"
+        name = artifactId
+        websiteUrl = siteUrl
+        vcsUrl = gitUrl
+        licenses = ["Apache-2.0"]
+        publish = true
+        publicDownloadNumbers = true
+    }
+}
