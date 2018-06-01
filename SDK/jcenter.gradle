@@ -1,15 +1,10 @@
-//buildscript {
-//    repositories {
-//        jcenter()
-//    }
-//    dependencies {
-//        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
-//        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
-//    }
-//}
-
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'maven-publish'
+
+ext {
+    currentVersion = '1.0.1'
+    myArtifact = 'SDK.jar'
+}
 
 Properties properties = new Properties()
 properties.load(project.rootProject.file('local.properties').newDataInputStream())
@@ -20,18 +15,17 @@ bintray {
     pkg {
         repo = "maven"
         name = 'GDTUnionSDK'
-        userOrg = 'chaotao'
-        licenses = ["Apache-2.0"]
+        userOrg = 'spa'
+//        licenses = ["Unlicense"]
         vcsUrl = 'https://github.com/chaotao89/GDTUnionSDK.git'
 //        websiteUrl = siteUrl
 //        publish = true
 //        publicDownloadNumbers = true
         version {
-            name = '1.0.0'
+            name = currentVersion
 //            desc = 'Version description'
 //            released  = new Date()
-//            vcsTag = '1.0.0'
-//            attributes = ['gradle-plugin': 'com.use.less:com.use.less.gradle:gradle-useless-plugin']
+ //            attributes = ['gradle-plugin': 'com.use.less:com.use.less.gradle:gradle-useless-plugin']
         }
     }
     publications = ['MyPublication']
@@ -59,17 +53,22 @@ def pomConfig = {
 }
 
 task sourceJar(type: Jar) {
-    from project.zipTree("SDK.jar")
+    from project.zipTree(myArtifact)
     classifier "sources"
+}
+
+task docJar(type: Jar) {
+    from project.zipTree(myArtifact)
+    classifier "javadoc"
 }
 
 publishing {
     publications {
         MyPublication(MavenPublication) {
-            artifacts = ["SDK.jar", sourceJar]
+            artifacts = [myArtifact, sourceJar, docJar]
             groupId 'com.qq.e'
             artifactId 'GDTUnionSDK'
-            version '1.0.0'
+            version currentVersion
             pom.withXml {
                 def root = asNode()
                 root.appendNode('description', 'GDTUnionSDK')
