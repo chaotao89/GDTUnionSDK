@@ -1,7 +1,5 @@
 apply plugin: 'java-library'
 
-apply from: 'jcenter.gradle'
-
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 }
